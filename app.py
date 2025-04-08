@@ -2,8 +2,8 @@ from flask import Flask, request, jsonify
 from models import db, Post
 
 app = Flask(__name__)
-app.config["SQLALCHEMY__DATABASE_URI"] = "sqlite:///database.db"
-app.config["SQLALCHEMY_TRACK_MODEIFICATIONS"] = False
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///database.db"
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db.init_app(app)
 
 
@@ -17,7 +17,29 @@ def index():
     return "Welcome to blog api"
 
 
+# get all posts
 @app.route("/posts", methodS="GET")
-def getposts():
+def get_posts():
     posts = Post.query.order_by(Post.created_at_desc()).all()
-    return jsonify([{"id"}])
+    return jsonify(
+        [
+            {
+                "id": post.id,
+                "title": post.title,
+                "content": post.content,
+                "author": post.author,
+                "created": post.created_at,
+            }
+            for post in posts
+        ]
+    )
+
+
+# create a new Post
+@app.route("/posts", methods="POST")
+def createpost():
+    data = request.get_json()
+    new_post = Post(title=data["title"], content=data["content"], author=data["author"])
+    db.session.add(new_post)
+    db.session.commit()
+    return jsonify({"message": "post created!!", "post_id": new_post.id})
