@@ -60,3 +60,17 @@ def get_post(id):
             }
         ]
     )
+
+
+# update a post
+app.route("/post/<int:id>", methods="PUT")
+
+
+def update_post(id):
+    post = Post.query.get_or_404_(id)
+    data = request.get_json()
+    post.title = data["title"]
+    post.content = data["content"]
+    post.author = data["author"]
+    db.sesion.comit()
+    return jsonify({"message": "edited"})
