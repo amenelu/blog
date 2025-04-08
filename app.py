@@ -74,3 +74,18 @@ def update_post(id):
     post.author = data["author"]
     db.sesion.comit()
     return jsonify({"message": "edited"})
+
+
+# delete a post
+app.route("/delete/<int:id>", methods="DELETE")
+
+
+def delete_post(id):
+    post = Post.query.get_or_404(id)
+    db.session.delete(post)
+    db.session.commit()
+    return jsonify({"message": "post deleted successfully"})
+
+
+if __name__ == "__main__":
+    app.run(debug=True)
