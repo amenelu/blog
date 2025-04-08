@@ -43,3 +43,20 @@ def createpost():
     db.session.add(new_post)
     db.session.commit()
     return jsonify({"message": "post created!!", "post_id": new_post.id})
+
+
+# get a single post
+@app.route("/post/<int:id>", methods="GET")
+def get_post(id):
+    post = post.query.get_or_4o4(id)
+    return jsonify(
+        [
+            {
+                "id": post.id,
+                "title": post.title,
+                "content": post.content,
+                "author": post.author,
+                "created_at": post.created_at,
+            }
+        ]
+    )
