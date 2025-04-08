@@ -18,9 +18,9 @@ def index():
 
 
 # get all posts
-@app.route("/posts", methodS="GET")
+@app.route("/posts", methods="GET")
 def get_posts():
-    posts = Post.query.order_by(Post.created_at_desc()).all()
+    posts = Post.query.order_by(Post.created_at.desc()).all()
     return jsonify(
         [
             {
@@ -36,8 +36,8 @@ def get_posts():
 
 
 # create a new Post
-@app.route("/posts", methods="POST")
-def createpost():
+@app.route("/posts", methods=["POST"])
+def create_post():
     data = request.get_json()
     new_post = Post(title=data["title"], content=data["content"], author=data["author"])
     db.session.add(new_post)
@@ -46,40 +46,34 @@ def createpost():
 
 
 # get a single post
-@app.route("/post/<int:id>", methods="GET")
+@app.route("/post/<int:id>", methods=["GET"])
 def get_post(id):
-    post = post.query.get_or_4o4(id)
+    post = Post.query.get_or_404(id)
     return jsonify(
-        [
-            {
-                "id": post.id,
-                "title": post.title,
-                "content": post.content,
-                "author": post.author,
-                "created_at": post.created_at,
-            }
-        ]
+        {
+            "id": post.id,
+            "title": post.title,
+            "content": post.content,
+            "author": post.author,
+            "created_at": post.created_at,
+        }
     )
 
 
 # update a post
-app.route("/post/<int:id>", methods="PUT")
-
-
+@app.route("/post/<int:id>", methods=["PUT"])
 def update_post(id):
-    post = Post.query.get_or_404_(id)
+    post = Post.query.get_or_404(id)
     data = request.get_json()
     post.title = data["title"]
     post.content = data["content"]
     post.author = data["author"]
-    db.sesion.comit()
+    db.session.commit()
     return jsonify({"message": "edited"})
 
 
 # delete a post
-app.route("/delete/<int:id>", methods="DELETE")
-
-
+@app.route("/delete/<int:id>", methods=["DELETE"])
 def delete_post(id):
     post = Post.query.get_or_404(id)
     db.session.delete(post)
