@@ -1,11 +1,11 @@
-from flask_alchemy import sqlalchemy
+from flask_sqlalchemy import SQLAlchemy
 
-db = sqlalchemy()
+db = SQLAlchemy()
 
 
 class Post(db.Model):
-    id = db.column(db.intiger, primarykey=True)
-    title = db.column(db.string(100), nullabe=False)
-    content = db.column(db.text, nullable=False)
-    author = db.column(db.string, nullable=False)
-    created_a = db.column(db.DateTime, default=db.func.current_timestamp())
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(100), nullable=False)
+    content = db.Column(db.Text, nullable=False)
+    author = db.Column(db.String, nullable=False)
+    created_at = db.Column(db.DateTime, default=db.func.current_timestamp())

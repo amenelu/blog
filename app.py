@@ -7,18 +7,13 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db.init_app(app)
 
 
-@app.before_first_request
-def create_tables():
-    db.create_all()
-
-
 @app.route("/")
 def index():
     return "Welcome to blog api"
 
 
-# get all posts
-@app.route("/posts", methods="GET")
+# Get all posts
+@app.route("/posts", methods=["GET"])
 def get_posts():
     posts = Post.query.order_by(Post.created_at.desc()).all()
     return jsonify(
@@ -35,17 +30,19 @@ def get_posts():
     )
 
 
-# create a new Post
+# Create a new post
 @app.route("/posts", methods=["POST"])
 def create_post():
     data = request.get_json()
+    if not all(key in data for key in ["title", "content", "author"]):
+        return jsonify({"error": "Missing required fields"}), 400
     new_post = Post(title=data["title"], content=data["content"], author=data["author"])
     db.session.add(new_post)
     db.session.commit()
-    return jsonify({"message": "post created!!", "post_id": new_post.id})
+    return jsonify({"message": "post created!!", "post_id": new_post.id}), 201
 
 
-# get a single post
+# Get a single post
 @app.route("/post/<int:id>", methods=["GET"])
 def get_post(id):
     post = Post.query.get_or_404(id)
@@ -60,26 +57,28 @@ def get_post(id):
     )
 
 
-# update a post
+# Update a post
 @app.route("/post/<int:id>", methods=["PUT"])
 def update_post(id):
     post = Post.query.get_or_404(id)
     data = request.get_json()
-    post.title = data["title"]
-    post.content = data["content"]
-    post.author = data["author"]
+    post.title = data.get("title", post.title)
+    post.content = data.get("content", post.content)
+    post.author = data.get("author", post.author)
     db.session.commit()
-    return jsonify({"message": "edited"})
+    return jsonify({"message": "Post updated!"})
 
 
-# delete a post
-@app.route("/delete/<int:id>", methods=["DELETE"])
+# Delete a post
+@app.route("/posts/<int:id>", methods=["DELETE"])
 def delete_post(id):
     post = Post.query.get_or_404(id)
     db.session.delete(post)
     db.session.commit()
-    return jsonify({"message": "post deleted successfully"})
+    return jsonify({"message": "Post deleted successfully"})
 
 
 if __name__ == "__main__":
+    with app.app_context():
+        db.create_all()
     app.run(debug=True)
