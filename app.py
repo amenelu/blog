@@ -7,6 +7,11 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db.init_app(app)
 
 
+@app.before_request
+def create_tables():
+    db.create_all()
+
+
 @app.route("/")
 def index():
     return "Welcome to blog api"
